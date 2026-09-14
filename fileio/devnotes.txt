@@ -1,1 +1,0 @@
-Treating this like a unix system, treat everything as a file!

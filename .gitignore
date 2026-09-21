@@ -1,3 +1,6 @@
 # ignore venv and compiled python
 __pycache__/
 .venv/
+
+# ignore tester
+tester.py

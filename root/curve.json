@@ -1,12 +1,14 @@
 [
     {
         "_comment": "iter1..n represents consecutive successful revisions, value represents day until next scheduled revision. Tweak this as you feel necessary.",
+        "_comment2": "penalty refers to how many iterations you fall upon a wrong answer. Default is 100, aka back to iter1. Tweak this as you feel necessary.",
         "iter1": 1,
         "iter2": 3,
         "iter3": 7,
         "iter4": 14,
         "iter5": 30,
         "iter6": 60,
-        "iter7": 120
+        "iter7": 120,
+        "penalty": 100
     }
 ]

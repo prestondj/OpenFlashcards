@@ -102,9 +102,22 @@ class Flashcard():
 
         payload: str = f"{self._statistics["revisions"]}\n{self._statistics["success"]}"
         self._paths[STATISTICS].write_text(payload)
-
     
-    # static methods    
+    # static methods   
+
+    @staticmethod
+    def create_flashcard(set_directory: pathlib.Path, question: str, answer: str) -> "Flashcard":
+        """
+        Creates a flashcard in the given directory with the set question and answer.
+
+        Args:
+          set_directory (`pathlib.Path`): The path of the directory of which the flashcard directory will belong to.
+          question (`str`): The question to live in `question.txt`.
+          answer (`str`): The answer to live in `answer.txt`.
+
+        Returns:
+          Instance of Flashcard (`flashcard.Flashcard`): The instance tied to the created directory.
+        """
 
     @staticmethod
     def read_statistics(raw: str) -> dict[str, int]:

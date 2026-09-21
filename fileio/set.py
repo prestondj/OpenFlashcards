@@ -1,7 +1,7 @@
 from .flashcard import Flashcard
 
 import pathlib
-from datetime import datetime
+from datetime import datetime, UTC
 
 DATE_DUE = "datedue.txt"
 
@@ -13,6 +13,12 @@ class Set():
 
         Args:
           directory_path (`pathlib.Path`): The path of the set directory containing the flashcards.
+
+        Raises:
+          `FileNotFoundError`: Directory or required child could not be found.
+          `ValueError`: Invalid configuration of directory or children.
+          `OSError`: Issue accessing files.
+          `UnicodeDecodeError`: Invalid bytes contained within files.
         """
 
         # Ensure path exists
@@ -29,15 +35,8 @@ class Set():
         if not self._due_file.exists():
             raise FileNotFoundError(f"[set.py: __init__] Date due file could not be located within {directory_path}")
 
-        raw_due_text: str
         try:
-            raw_due_text = self._due_file.read_text()
-        except (OSError, UnicodeDecodeError) as e:
-            raise type(e)(f"[set.py: __init__] Re-raising error whilst reading from file {self._due_file}") from e
-
-        self._due_datetime: str
-        try:
-            self._due_datetime = datetime.fromisoformat(raw_due_text)
+            _ = self.get_due_date()
         except ValueError as e:
             raise ValueError(f"[set.py: __init__] Invalid data within {self._due_file}") from e
 
@@ -53,5 +52,24 @@ class Set():
                 raise type(e)(f"[set.py: __init__] Error creating flashcard from {child}")
 
         self._flashcards.sort(key=lambda f: f.number)
-            
+
+    # properties
+
+    @property
+    def is_due(self) -> bool:
+        return self.get_due_date() < datetime.now(UTC)
+
+    # instance methods
+
+    def get_due_date(self) -> datetime:
+        raw_due_text: str
+        try:
+            raw_due_text = self._due_file.read_text()
+        except (OSError, UnicodeDecodeError) as e:
+            raise type(e)(f"[set.py: get_due_date] Re-raising error whilst reading from file {self._due_file}") from e
+        
+        try:
+            return datetime.fromisoformat(raw_due_text)
+        except ValueError as e:
+            raise ValueError(f"[set.py: get_due_date] Issue parsing isoformat time from file {self._due_file}") from e
                 

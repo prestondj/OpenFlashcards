@@ -6,4 +6,4 @@ __pycache__/
 tester.py
 
 # ignore test set 
-root/testset/
+root/testset/*

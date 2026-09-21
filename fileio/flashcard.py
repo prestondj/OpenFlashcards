@@ -1,0 +1,96 @@
+import pathlib
+
+QUESTION = "question.txt"
+ANSWER = "answer.txt"
+STATISTICS = "statistics.txt"
+
+REQUIRED_FILES = [QUESTION, ANSWER, STATISTICS]
+
+class Flashcard():
+
+    def __init__(self, directory_path: pathlib.Path):
+        # ensure path exists
+        if not directory_path.exists():
+            raise FileNotFoundError(f"[flashcard.py: __init__] Flashcard directory cannot be found: {directory_path}")
+
+        # ensure it is a directory
+        if not directory_path.is_dir():
+            raise ValueError(f"[flashcard.py: __init__] Flashcard path does not point to a directory: {directory_path}")
+
+        # ensure its children exist
+        children: list[pathlib.Path] = list(directory_path.iterdir())
+        if len(children) != 3:
+            raise ValueError(f"[flashcard.py: __init__] Flashcard directory contains more than 3 files: {directory_path}")
+
+        self._paths: dict[str, pathlib.Path] = {}
+
+        for file in REQUIRED_FILES:
+            self._paths[file] = directory_path / file
+
+        for file in REQUIRED_FILES:
+            if not self._paths[file] in children:
+                raise FileNotFoundError(f"[flashcard.py: __init__] Flashcard directory {directory_path} is missing: {file}")
+            if self._paths[file].is_dir():
+                raise ValueError(f"[flashcard.py: __init__] Flashcard file {file} for {directory_path} is a directory.")
+
+
+        # read statistics:
+        raw_statistics = self._paths[STATISTICS].read_text()
+        self._statistics: dict[str, int] | None = None
+        try:
+            self._statistics = Flashcard.read_statistics(raw_statistics)
+        except ValueError as e:
+            raise ValueError(f"[flashcard.py: __init__] Issue whilst setting up statistics for {directory_path}") from e
+
+        # read question and answer:
+        raw_question: str
+        raw_answer: str
+        try:
+            raw_question = self._paths[QUESTION].read_text()
+            raw_answer = self._paths[ANSWER].read_text()
+        except (UnicodeDecodeError, OSError) as e:
+            raise type(e)(f"[flashcard.py: __init__] Re-raising error from pathlib due to attempted reading of question/answer from: {directory_path}") from e
+
+        if len(raw_question) == 0 or len(raw_answer) == 0:
+            raise ValueError(f"[flashcard.py: __init] Answer '{raw_answer}' or Question '{raw_question}' are blank!")
+
+        self._question = raw_question.strip()
+        self._answer = raw_answer.strip()
+
+    # properties
+    @property
+    def question(self) -> str:
+        return self._question
+
+    @property
+    def answer(self) -> str:
+        return self._answer
+
+    @property
+    def success_rate(self) -> str:
+        return f"{100 * (self._statistics["success"] / self._statistics["revisions"])}%"
+
+    @property
+    def revisions(self) -> int:
+        return self._statistics["revisions"]
+    
+    # static methods    
+
+    @staticmethod
+    def read_statistics(raw: str) -> dict[str, int]:
+        # create new reference and split lines
+        result: dict[str, int] = {}
+        lines: list[str] = raw.split('\n')
+
+        # invalid configuration if not 2 lines
+        if len(lines) != 2:
+            raise ValueError(f"[flashcard.py: read_statistics] Flashcard statistics file has invalid contents: {lines}")
+
+        # ensure data within file is acceptable
+        try:
+            result["revisions"] = int(lines[0])
+            result["success"] = int(lines[1])
+        except TypeError as e:
+            raise ValueError(f"[flashcard.py: read_statistics] Re-raising error due to invalid file contents: {lines}") from e
+
+        return result

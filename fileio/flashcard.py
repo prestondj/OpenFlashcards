@@ -86,6 +86,23 @@ class Flashcard():
     @property
     def revisions(self) -> int:
         return self._statistics["revisions"]
+
+    # instance methods
+
+    def attempt(self, success: bool) -> None:
+        """
+        Increments the statistics based on the outcome of an attempt.
+
+        Args:
+          success (`bool`): Whether the flashcard was answered successfully.
+        """
+        self._statistics["revisions"] += 1
+        if success:
+            self._statistics["success"] += 1
+
+        payload: str = f"{self._statistics["revisions"]}\n{self._statistics["success"]}"
+        self._paths[STATISTICS].write_text(payload)
+
     
     # static methods    
 

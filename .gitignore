@@ -1,0 +1,3 @@
+# ignore venv and compiled python
+__pycache__/
+.venv/

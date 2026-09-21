@@ -81,6 +81,9 @@ class Flashcard():
 
     @property
     def success_rate(self) -> str:
+        if self._statistics["revisions"] == 0:
+            return "0%"
+        
         return f"{100 * (self._statistics["success"] / self._statistics["revisions"])}%"
 
     @property
@@ -106,18 +109,53 @@ class Flashcard():
     # static methods   
 
     @staticmethod
-    def create_flashcard(set_directory: pathlib.Path, question: str, answer: str) -> "Flashcard":
+    def create_flashcard(set_directory: pathlib.Path, number: int, question: str, answer: str) -> "Flashcard":
         """
         Creates a flashcard in the given directory with the set question and answer.
 
         Args:
           set_directory (`pathlib.Path`): The path of the directory of which the flashcard directory will belong to.
+          number (`int`): The flashcard's cannonical number.
           question (`str`): The question to live in `question.txt`.
           answer (`str`): The answer to live in `answer.txt`.
 
         Returns:
           Instance of Flashcard (`flashcard.Flashcard`): The instance tied to the created directory.
+
+        Raises:
+          `FileNotFoundError`: The set directory could not be resolved.
+          `FileExistsError`: A flashcard with the cannonical number in the set already exists.
+          `OSError`: An error creating the directory.
         """
+
+        # ensure valid parent directory
+        if not set_directory.exists() or not set_directory.is_dir():
+            raise FileNotFoundError(f"[flashcard.py: create_flashcard] The set directory {set_directory} could not be found / is not a directory.")
+
+        # ensure no duplicate set
+        flashcard_directory = set_directory / str(number)
+        if flashcard_directory.exists():
+            raise FileExistsError(f"[flashcard.py: create_flashcard] Tried creating {flashcard_directory}, but it already exists!")
+
+        # make flashcard directory
+        try:
+            flashcard_directory.mkdir()
+        except OSError as e:
+            raise OSError(f"[flashcard.py: create_flashcard] OS Error being re-raised, due to creation of {set_directory}") from e
+
+        # populate flashcard directory
+        paths: dict[str, pathlib.Path] = {}
+        for file in REQUIRED_FILES:
+            paths[file] = flashcard_directory / file
+            paths[file].touch()
+
+        # populate files with data
+        paths[QUESTION].write_text(question)
+        paths[ANSWER].write_text(answer)
+        paths[STATISTICS].write_text("0\n0")
+
+        # return a new instance - this does a lot of the validation!
+        return Flashcard(flashcard_directory)
 
     @staticmethod
     def read_statistics(raw: str) -> dict[str, int]:

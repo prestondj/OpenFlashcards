@@ -7,6 +7,6 @@ Firstly, there will be a date of next due
 Then there will be second-level directories - which are actual flashcards. Names are numeric, representing order of revision.
 
 Within the second-level directories, there will be 3 things.
-Firstly, there will be a statistics file, containing number of revisions, number of success, used for calculations.
-Secondly, there will be a question file, containing the raw question text.
-Finally, there wiill be an answer file, containing the raw answer text.
+Firstly, there will be a statistics file, containing number of revisions, number of success, used for calculations. [statistics.txt]
+Secondly, there will be a question file, containing the raw question text. [question.txt]
+Finally, there wiill be an answer file, containing the raw answer text. [answer.txt]

@@ -29,6 +29,12 @@ class Flashcard():
         if not directory_path.is_dir():
             raise ValueError(f"[flashcard.py: __init__] Flashcard path does not point to a directory: {directory_path}")
 
+        self._number = directory_path.name
+        try:
+            self._number = int(self._number)
+        except TypeError as e:
+            raise ValueError(f"[flashcard.py: __init__] Invalid name for a flashcard (non-numeric): {directory_path}")
+
         # ensure its children exist
         children: list[pathlib.Path] = list(directory_path.iterdir())
         if len(children) != 3:
@@ -69,6 +75,11 @@ class Flashcard():
         self._question = raw_question.strip()
         self._answer = raw_answer.strip()
 
+    # debugging utilities
+
+    def __str__(self):
+        return f"<flashcard {self.number}> q: {self.question} | a: {self.answer}"
+
     # properties
 
     @property
@@ -89,6 +100,10 @@ class Flashcard():
     @property
     def revisions(self) -> int:
         return self._statistics["revisions"]
+
+    @property
+    def number(self) -> int:
+        return self._number
 
     # instance methods
 

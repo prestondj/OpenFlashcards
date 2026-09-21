@@ -1,0 +1,1 @@
+Abstraction is the process of removing unnecessary parts of the problem.

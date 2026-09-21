@@ -1,0 +1,12 @@
+[
+    {
+        "_comment": "iter1..n represents consecutive successful revisions, value represents day until next scheduled revision. Tweak this as you feel necessary.",
+        "iter1": 1,
+        "iter2": 3,
+        "iter3": 7,
+        "iter4": 14,
+        "iter5": 30,
+        "iter6": 60,
+        "iter7": 120
+    }
+]

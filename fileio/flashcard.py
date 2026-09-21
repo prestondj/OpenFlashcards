@@ -8,7 +8,19 @@ REQUIRED_FILES = [QUESTION, ANSWER, STATISTICS]
 
 class Flashcard():
 
-    def __init__(self, directory_path: pathlib.Path):
+    def __init__(self, directory_path: pathlib.Path) -> "Flashcard":
+        """
+        Validate a flashcard directory, and provide a flashcard object.
+
+        Args:
+          directory_path (`pathlib.Path`): The path of the flashcard directory (structured as per `documentation.txt`)
+
+        Raises:
+          `FileNotFoundError`: One or more files, or the root could not be found.
+          `ValueError`: A configuration within the found files is invalid.
+          `UnicodeDecodeError`: A file within the directory contains invalid bytes.
+          `OSError`: The OS cannot open one or more files within the directory.
+        """
         # ensure path exists
         if not directory_path.exists():
             raise FileNotFoundError(f"[flashcard.py: __init__] Flashcard directory cannot be found: {directory_path}")
@@ -58,6 +70,7 @@ class Flashcard():
         self._answer = raw_answer.strip()
 
     # properties
+
     @property
     def question(self) -> str:
         return self._question
@@ -78,6 +91,18 @@ class Flashcard():
 
     @staticmethod
     def read_statistics(raw: str) -> dict[str, int]:
+        """
+        Decode statistics from the raw lines of the `statistics.txt` file.
+
+        Args:
+          raw (`str`): The raw lines of the file.
+
+        Returns:
+          statistics (`dict[str, int]`): A dictionary with two kvps of the success and revisions.
+
+        Raises:
+          `ValueError`: Data within the file is invalid.
+        """
         # create new reference and split lines
         result: dict[str, int] = {}
         lines: list[str] = raw.split('\n')

@@ -2,8 +2,9 @@ Inside of the root, there will be 2 things.
 Firstly, curve.json, which contains the curve for re-learning.
 Then there will be top-level directories - which are sets of flashcards. Names must be unique.
 
-Within the top-level directories, there will be 2 things.
+Within the top-level directories, there will be 3 things.
 Firstly, there will be a date of next due
+Secondly, there will be an iteration number
 Then there will be second-level directories - which are actual flashcards. Names are numeric, representing order of revision.
 
 Within the second-level directories, there will be 3 things.

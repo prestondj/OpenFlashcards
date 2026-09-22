@@ -1,6 +1,6 @@
 [
     {
-        "_comment": "iter1..n represents consecutive successful revisions, value represents day until next scheduled revision. Tweak this as you feel necessary.",
+        "_comment": "iter1..n represents consecutive successful revisions, value represents day until next scheduled revision. Tweak this as you feel necessary. minimum iter1 [hardcoded].",
         "_comment2": "penalty refers to how many iterations you fall upon a wrong answer. Default is 100, aka back to iter1. Tweak this as you feel necessary.",
         "iter1": 1,
         "iter2": 3,

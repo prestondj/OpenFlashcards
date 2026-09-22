@@ -4,7 +4,7 @@ import pathlib
 from datetime import datetime, UTC, timedelta
 
 DATE_DUE = "datedue.txt"
-ITER_FILE = "iter.txt"
+ITER_FILE = "iter.txt" # refers to current iter (e.g. 1 means next iter should be 1, 2 means next iter should be 2)
 
 class Set():
 
@@ -144,8 +144,23 @@ class Set():
                 return fc
         return None
 
-    def attempt_set(self, success: bool) -> None:
-        ...
+    def attempt_set(self, success: bool, curve: dict[str, int]) -> None:
+        if success:
+            iter = self.get_iter()
+            date = self.get_due_date()
+
+            next_days = curve.get(f"iter{iter+1}", curve.get("max", 1))
+
+            try:
+                self._iter_file.write_text(f"{iter+1}")
+                self._due_file.write_text((date + timedelta(days=next_days)).isoformat())
+            except (OSError, UnicodeDecodeError) as e:
+                raise type(e)("[set.py: attempt_set] Issue writing to file") from e
+
+            return
+
+        self._iter_file.write_text("1")
+        self._due_file.write_text((date + timedelta(days=curve.get("iter1", 1))).isoformat())
                 
     # static methods
 
@@ -172,7 +187,7 @@ class Set():
             directory_path.mkdir()
 
             iter_file: pathlib.Path = directory_path / ITER_FILE
-            iter_file.write_text("0")
+            iter_file.write_text("1")
 
             due_file: pathlib.Path = directory_path / DATE_DUE
             due_file.touch()

@@ -9,6 +9,7 @@
         "iter5": 30,
         "iter6": 60,
         "iter7": 120,
+        "max": 120,
         "penalty": 100
     }
 ]

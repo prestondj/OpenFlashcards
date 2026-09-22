@@ -1,1 +1,1 @@
-from manager import FlashcardManager
+from .manager import FlashcardManager

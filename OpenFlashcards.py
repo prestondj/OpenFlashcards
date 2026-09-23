@@ -127,3 +127,23 @@ while user_input != "EXITFLAG":
             print("Invalid question or answer!")
 
         any_cont()
+
+    elif user_input == "3" and current_fidelity == "s":
+        os.system(CLEAR_TERM)
+
+        success_rate, weakest, revisions = current_set.consolidated_statistics
+
+        if revisions == 0:
+            print("You need to attempt this set prior to viewing its statistics!")
+        else:
+            print(f"Your success rate across {revisions} revisions is {success_rate}.")
+
+            if success_rate == "100%":
+                print("You've never failed a card!")
+            else:
+                print("Your weakest cards are:")
+                for card in weakest:
+                    fc = current_set.get_flashcard(card)
+                    print(f"{fc.number}: {fc.question}")
+
+        any_cont()

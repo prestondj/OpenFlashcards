@@ -99,7 +99,7 @@ class Flashcard():
     def success_rate(self) -> str:
         # prevent div by 0
         if self._statistics["revisions"] == 0:
-            return "0%"
+            return "100%"
         
         return f"{100 * (self._statistics["success"] / self._statistics["revisions"])}%"
 

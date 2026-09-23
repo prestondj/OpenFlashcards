@@ -81,6 +81,44 @@ class Set():
             return self._flashcards[-1].number
         return 0
 
+    @property
+    def consolidated_statistics(self) -> tuple[str, list[int], int] | None:
+        """
+        Returns a tuple of arity 3.
+        1 - overall success rate (str)
+        2 - weakest flashcard (list int)
+        3 - total revisions (int)
+        None = no flashcards in set
+        """
+
+        cards = len(self._flashcards)
+        if cards == 0:
+            return None
+
+        success_rate = 0
+        revisions = 0
+        weakest: list[int] = []
+        threshold = 101
+
+        for fc in self._flashcards:
+            revisions += fc.revisions
+            this_success = int(fc.success_rate[:-1])
+            success_rate += this_success
+
+            if this_success <= threshold:
+                weakest.append(fc.number)
+                threshold = this_success
+
+        success_rate /= cards
+        success_rate = int(success_rate)
+        success_rate = f"{success_rate}%"
+
+        revisions /= cards
+        revisions = int(revisions)
+
+        return (success_rate, weakest, revisions)
+
+
     # kind of a property
     def get_flashcard(self, index: int) -> Flashcard:
         return self._flashcards[index]

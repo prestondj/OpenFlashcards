@@ -49,6 +49,8 @@ while user_input != "EXITFLAG":
     print("\n".join(MENU_LOOKUP[current_fidelity]))
     user_input = readkey()
 
+    # manager menu
+
     # quit on manager menu
     if user_input == "0" and current_fidelity == "m":
         os.system(CLEAR_TERM)
@@ -97,3 +99,9 @@ while user_input != "EXITFLAG":
             print(f"Successfuly created the set {set_name}")
 
         any_cont()
+
+    # set menu
+    
+    elif user_input == "0" and current_fidelity == "s":
+        os.system(CLEAR_TERM)
+        current_fidelity = "m"

@@ -22,8 +22,8 @@ class Set():
           `UnicodeDecodeError`: Invalid bytes contained within files.
         """
 
-        self._directory_path = directory_path
-        self._name = directory_path.name
+        self._directory_path: pathlib.Path = directory_path
+        self._name: str = directory_path.name
 
         # Ensure path exists
         if not directory_path.exists():
@@ -33,10 +33,11 @@ class Set():
         if not directory_path.is_dir():
             raise ValueError(f"[set.py: __init__] Set directory is not actually a directory for {directory_path}")
 
-        # collect datedue.txt
+        # collect datedue.txt and iter.txt
         self._due_file: pathlib.Path = directory_path / DATE_DUE
         self._iter_file: pathlib.Path = directory_path / ITER_FILE
 
+        # ensure duedate and iter exists
         if not self._due_file.exists():
             raise FileNotFoundError(f"[set.py: __init__] Date due file could not be located within {directory_path}")
 
@@ -49,17 +50,18 @@ class Set():
         except ValueError as e:
             raise ValueError(f"[set.py: __init__] Invalid data within {self._due_file} or {self._iter_file}") from e
 
+        # all children including iter/duedate
         children: list[pathlib.Path] = list(directory_path.iterdir())
-
         self._flashcards: list[Flashcard] = []
 
         for child in children:
-            if child.is_dir():
+            if child.is_dir(): # filter out iter/duedate
                 try:
                     self._flashcards.append(Flashcard(child))
                 except (FileNotFoundError, ValueError, UnicodeDecodeError, OSError) as e:
                     raise type(e)(f"[set.py: __init__] Error creating flashcard from {child}")
 
+        # sort by number ascending
         self._flashcards.sort(key=lambda f: f.number)
 
     # properties
@@ -74,6 +76,7 @@ class Set():
 
     @property
     def max_index(self) -> int:
+        # prevent error if the list is empty
         if self._flashcards:
             return self._flashcards[-1].number
         return 0
@@ -134,17 +137,40 @@ class Set():
         """
 
         try:
-            self._flashcards.append(Flashcard.create_flashcard(self._directory_path, self.max_index, question, answer))
+            self._flashcards.append(Flashcard.create_flashcard(self._directory_path, self.max_index+1, question, answer))
         except (FileNotFoundError, FileExistsError, OSError) as e:
             raise type(e)("[set.py: add_flashcards] Re-raising error.") from e
 
     def get_flashcard(self, number: int) -> Flashcard | None:
+        """
+        Get a flashcard by its cannonical number.
+
+        Args:
+          number (`int`): The flashcard's cannonical number.
+
+        Returns:
+          `Flashcard` or `None`: The flashcard, or none if it couldnt be found.
+        """
+
         for fc in self._flashcards:
             if fc.number == number:
                 return fc
         return None
 
     def attempt_set(self, success: bool, curve: dict[str, int]) -> None:
+        """
+        Record whether or not the user has successfully attempted the flashcard set.
+
+        Args:
+          success (`bool`): Whether the user successfully completed the set.
+          curve (`dict[str, int]`): The curve.json contents as a formatted dictionary.
+
+        Raises:
+          OSError: Invalid permissions when accessing file.
+          UnicodeDecodeError: Invalid bytes within file.
+        """
+
+        # if success, update with the next step in the iter curve.
         if success:
             iter = self.get_iter()
             date = self.get_due_date()
@@ -159,8 +185,12 @@ class Set():
 
             return
 
-        self._iter_file.write_text("1")
-        self._due_file.write_text((date + timedelta(days=curve.get("iter1", 1))).isoformat())
+        # otherwise reset back to one
+        try:
+            self._iter_file.write_text("1")
+            self._due_file.write_text((date + timedelta(days=curve.get("iter1", 1))).isoformat())
+        except (OSError, UnicodeDecodeError) as e:
+                        raise type(e)("[set.py: attempt_set] Issue writing to file") from e
                 
     # static methods
 
@@ -180,15 +210,19 @@ class Set():
           ValueError: Invalid datetime operation.
         """
 
+        # error if set already exists
         if directory_path.exists():
             raise FileExistsError(f"[set.py: create_set] The directory already exists: {directory_path}")
 
+        # otherwise try to create it
         try:
             directory_path.mkdir()
 
+            # iter file creation, defaults to 1
             iter_file: pathlib.Path = directory_path / ITER_FILE
             iter_file.write_text("1")
 
+            # due file, with `days_until_due` as default
             due_file: pathlib.Path = directory_path / DATE_DUE
             due_file.touch()
 

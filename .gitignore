@@ -6,4 +6,4 @@ __pycache__/
 tester.py
 
 # ignore all directories within root
-root/*/
+root/**/

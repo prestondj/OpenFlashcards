@@ -110,7 +110,41 @@ while user_input != "EXITFLAG":
 
     # attempt set
     elif user_input == "1" and current_fidelity == "s":
-        ...
+
+        failure = False
+
+        for fc_number in range(1, current_set.max_index+1):
+            os.system(CLEAR_TERM)
+            current_flashcard = current_set.get_flashcard(fc_number)
+
+            print(f"Question {fc_number+1}: {current_flashcard.question}")
+            usr_ans: str = input("Answer: ")
+
+            os.system(CLEAR_TERM)
+            print(f"You answered: {usr_ans}")
+            print(f"Actual answer: {current_flashcard.answer}")
+
+            print("Did you answer this correctly? Y/N")
+            key = readkey()
+            while key != "y" and key != "n":
+                key = readkey()
+
+            if key == "y":
+                current_flashcard.attempt(True)
+            else:
+                current_flashcard.attempt(False)
+                failure = True
+
+        os.system(CLEAR_TERM)
+        if failure:
+            current_set.attempt_set(False, manager._curve)
+            print(f"You have failed this set! It will now be due at: {current_set.get_due_date().strftime("%A %d %B, %Y, at %H:%M %Z")}.")
+
+        else:
+            current_set.attempt_set(True, manager._curve)
+            print(f"You have completed this set! It will now be due at: {current_set.get_due_date().strftime("%A %d %B, %Y, at %H:%M %Z")}.")
+
+        any_cont()
 
     # add a card to the set
     elif user_input == "2" and current_fidelity == "s":
@@ -131,11 +165,12 @@ while user_input != "EXITFLAG":
     elif user_input == "3" and current_fidelity == "s":
         os.system(CLEAR_TERM)
 
-        success_rate, weakest, revisions = current_set.consolidated_statistics
+        raw_stats = current_set.consolidated_statistics
 
-        if revisions == 0:
+        if not raw_stats:
             print("You need to attempt this set prior to viewing its statistics!")
         else:
+            success_rate, weakest, revisions = raw_stats
             print(f"Your success rate across {revisions} revisions is {success_rate}.")
 
             if success_rate == "100%":

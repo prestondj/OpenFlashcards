@@ -102,7 +102,7 @@ class Set():
 
         for fc in self._flashcards:
             revisions += fc.revisions
-            this_success = int(fc.success_rate[:-1])
+            this_success = int(float(fc.success_rate[:-1]))
             success_rate += this_success
 
             if this_success <= threshold:
@@ -208,10 +208,11 @@ class Set():
           UnicodeDecodeError: Invalid bytes within file.
         """
 
+        date = datetime.now(UTC)
+
         # if success, update with the next step in the iter curve.
         if success:
             iter = self.get_iter()
-            date = self.get_due_date()
 
             next_days = curve.get(f"iter{iter+1}", curve.get("max", 1))
 

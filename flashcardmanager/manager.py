@@ -103,6 +103,9 @@ class FlashcardManager():
         Display all sets to the terminal.
         """
 
+        if not self._sets:
+            print(" - No sets available!")
+
         for set in self._sets:
             print(f" - {set.name} with {len(set._flashcards)} flashcards.")
 

@@ -19,10 +19,10 @@ class FlashcardManager():
           FlashcardManager: An instance of a flashcard manager.
 
         Raises:
-          FileNotFoundError
-          ValueError
-          OSError
-          UnicodeDecodeError
+          FileNotFoundError: Cannot find root or a set within has failed to load.
+          ValueError: Root is not a directory, or a set within has failed to load.
+          OSError: Permission error.
+          UnicodeDecodeError: Invalid bytes within a file.
         """
 
         self._directory_path: pathlib.Path = root
@@ -54,13 +54,41 @@ class FlashcardManager():
         raw_json = self._curve_path.read_text()
         self._curve: dict[str, int] = loads(raw_json)[0]
 
-    def create_set(self, name: str) -> None:
+    def create_set(self, name: str) -> "Set":
+        """
+        Create a set within the manager, and return a reference to it.
+
+        Args:
+          name (`str`): The name of the set (must be unique)
+
+        Returns:
+          set (`set.Set`): The newly created set
+
+        Raises:
+          FileExistsError: Set with name already exists
+          OSError: Invalid permissions
+          UnicodeDecodeError: Invalid bytes within a file.
+          ValueError: Issue with datetime file.
+        """
         try:
-            self._sets.append(Set.create_set(self._directory_path / name, self._curve["iter1"]))
+            set: Set = Set.create_set(self._directory_path / name, self._curve["iter1"])
+            self._sets.append(set)
+            return set
         except (FileExistsError, OSError, UnicodeDecodeError, ValueError) as e:
             raise type(e)("[manager.py: create_set] See raiser for more details.") from e
 
     def get_set(self, name: str) -> Set | None:
+        """
+        Get a set by its name.
+
+        Args:
+          name (`str`): The name of the target
+
+        Returns:
+          `Set` or `None`: Either the set or nothing.
+        """
+
+
         for set in self._sets:
             if set.name == name:
                 return set

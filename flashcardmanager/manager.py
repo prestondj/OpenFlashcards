@@ -54,6 +54,10 @@ class FlashcardManager():
         raw_json = self._curve_path.read_text()
         self._curve: dict[str, int] = loads(raw_json)[0]
 
+    @property
+    def num_overdue(self) -> int:
+        return len(list(filter(lambda x: x.is_due, self._sets)))
+
     def create_set(self, name: str) -> "Set":
         """
         Create a set within the manager, and return a reference to it.
@@ -100,4 +104,13 @@ class FlashcardManager():
         """
 
         for set in self._sets:
+            print(f" - {set.name} with {len(set._flashcards)} flashcards.")
+
+    def list_overdue(self) -> None:
+        """
+        Display all overdue sets to the terminal.
+        """
+
+        overdue = list(filter(lambda x: x.is_due, self._sets))
+        for set in overdue:
             print(f" - {set.name} with {len(set._flashcards)} flashcards.")

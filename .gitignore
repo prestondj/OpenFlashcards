@@ -5,5 +5,5 @@ __pycache__/
 # ignore tester
 tester.py
 
-# ignore test set 
-root/testset/*
+# ignore all directories within root
+root/*/

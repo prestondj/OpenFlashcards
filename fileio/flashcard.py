@@ -1,10 +1,12 @@
 import pathlib
 
-QUESTION = "question.txt"
-ANSWER = "answer.txt"
-STATISTICS = "statistics.txt"
+# 3 required files within a flashcard directory
+QUESTION: str = "question.txt"
+ANSWER: str = "answer.txt"
+STATISTICS: str = "statistics.txt"
 
-REQUIRED_FILES = [QUESTION, ANSWER, STATISTICS]
+# for easier iterating
+REQUIRED_FILES: list[str] = [QUESTION, ANSWER, STATISTICS]
 
 class Flashcard():
 
@@ -29,7 +31,7 @@ class Flashcard():
         if not directory_path.is_dir():
             raise ValueError(f"[flashcard.py: __init__] Flashcard path does not point to a directory: {directory_path}")
 
-        self._number = directory_path.name
+        self._number: int = directory_path.name
         try:
             self._number = int(self._number)
         except TypeError as e:
@@ -40,11 +42,13 @@ class Flashcard():
         if len(children) != 3:
             raise ValueError(f"[flashcard.py: __init__] Flashcard directory contains more than 3 files: {directory_path}")
 
+        # make a dict for the path, key = constants, value = their full path
         self._paths: dict[str, pathlib.Path] = {}
 
         for file in REQUIRED_FILES:
             self._paths[file] = directory_path / file
 
+        # ensure all paths exist
         for file in REQUIRED_FILES:
             if not self._paths[file] in children:
                 raise FileNotFoundError(f"[flashcard.py: __init__] Flashcard directory {directory_path} is missing: {file}")
@@ -53,7 +57,7 @@ class Flashcard():
 
 
         # read statistics:
-        raw_statistics = self._paths[STATISTICS].read_text()
+        raw_statistics: str = self._paths[STATISTICS].read_text()
         self._statistics: dict[str, int] | None = None
         try:
             self._statistics = Flashcard.read_statistics(raw_statistics)
@@ -72,8 +76,9 @@ class Flashcard():
         if len(raw_question) == 0 or len(raw_answer) == 0:
             raise ValueError(f"[flashcard.py: __init] Answer '{raw_answer}' or Question '{raw_question}' are blank!")
 
-        self._question = raw_question.strip()
-        self._answer = raw_answer.strip()
+        # set attributes if we've validated them
+        self._question: str = raw_question.strip()
+        self._answer: str = raw_answer.strip()
 
     # debugging utilities
 
@@ -92,6 +97,7 @@ class Flashcard():
 
     @property
     def success_rate(self) -> str:
+        # prevent div by 0
         if self._statistics["revisions"] == 0:
             return "0%"
         
@@ -114,10 +120,13 @@ class Flashcard():
         Args:
           success (`bool`): Whether the flashcard was answered successfully.
         """
+
+        # always increment revisions. update success only if bool is true.
         self._statistics["revisions"] += 1
         if success:
             self._statistics["success"] += 1
 
+        # write the update
         payload: str = f"{self._statistics["revisions"]}\n{self._statistics["success"]}"
         self._paths[STATISTICS].write_text(payload)
     
@@ -148,7 +157,7 @@ class Flashcard():
             raise FileNotFoundError(f"[flashcard.py: create_flashcard] The set directory {set_directory} could not be found / is not a directory.")
 
         # ensure no duplicate set
-        flashcard_directory = set_directory / str(number)
+        flashcard_directory: pathlib.Path = set_directory / str(number)
         if flashcard_directory.exists():
             raise FileExistsError(f"[flashcard.py: create_flashcard] Tried creating {flashcard_directory}, but it already exists!")
 

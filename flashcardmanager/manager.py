@@ -93,3 +93,11 @@ class FlashcardManager():
             if set.name == name:
                 return set
         return None
+
+    def list_sets(self) -> None:
+        """
+        Display all sets to the terminal.
+        """
+
+        for set in self._sets:
+            print(f" - {set.name} with {len(set._flashcards)} flashcards.")

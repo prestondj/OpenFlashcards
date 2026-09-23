@@ -88,6 +88,7 @@ while user_input != "EXITFLAG":
 
         any_cont()
 
+    # create a new set
     elif user_input == "4" and current_fidelity == "m":
         os.system(CLEAR_TERM)
 
@@ -102,6 +103,27 @@ while user_input != "EXITFLAG":
 
     # set menu
     
+    # back to manager
     elif user_input == "0" and current_fidelity == "s":
         os.system(CLEAR_TERM)
         current_fidelity = "m"
+
+    # attempt set
+    elif user_input == "1" and current_fidelity == "s":
+        ...
+
+    # add a card to the set
+    elif user_input == "2" and current_fidelity == "s":
+        os.system(CLEAR_TERM)
+
+        print(f"Adding a new card to the {current_set.name} set.")
+        q = input("Enter the question: ").strip()
+        a = input("Enter the corresponding answer: ").strip()
+
+        if q and a:
+            current_set.add_flashcard(q, a)
+            print("Successfully added flashcard.")
+        else:
+            print("Invalid question or answer!")
+
+        any_cont()

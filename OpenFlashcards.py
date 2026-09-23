@@ -36,6 +36,7 @@ SET_MENU: list[str] = [
     "1 - Attempt set",
     "2 - Add a card to this set",
     "3 - View statistics of this set",
+    "4 - Preview the set,",
     "0 - Back to manager",
 ]
 
@@ -46,6 +47,9 @@ MENU_LOOKUP: dict[str, list] = {
 
 user_input: str = None
 while user_input != "EXITFLAG":
+    if current_fidelity == "s":
+        print(f"Looking at the set {current_set.name}, which is due on {current_set.get_due_date().strftime("%A %d %B, %Y at %H:%M %Z")}.\n")
+
     print("\n".join(MENU_LOOKUP[current_fidelity]))
     user_input = readkey()
 
@@ -66,8 +70,9 @@ while user_input != "EXITFLAG":
             print(f"Selected set: {current_set.name}")
         else:
             print("Set could not be found.")
+            readkey()
 
-        any_cont()
+        os.system(CLEAR_TERM)
             
     # view all sets on manager menu
     elif user_input == "2" and current_fidelity == "m":
@@ -76,7 +81,8 @@ while user_input != "EXITFLAG":
         print("Available Flashcard sets:")
         manager.list_sets()
 
-        any_cont()
+        readkey()
+        os.system(CLEAR_TERM)
 
     # view overdue sets on manager menu
     elif user_input == "3" and current_fidelity == "m":
@@ -86,7 +92,8 @@ while user_input != "EXITFLAG":
         if manager.num_overdue > 0:
             manager.list_overdue()
 
-        any_cont()
+        readkey()
+        os.system(CLEAR_TERM)
 
     # create a new set
     elif user_input == "4" and current_fidelity == "m":
@@ -99,7 +106,8 @@ while user_input != "EXITFLAG":
             manager.create_set(set_name)
             print(f"Successfuly created the set {set_name}")
 
-        any_cont()
+        readkey()
+        os.system(CLEAR_TERM)
 
     # set menu
     
@@ -160,7 +168,8 @@ while user_input != "EXITFLAG":
         else:
             print("Invalid question or answer!")
 
-        any_cont()
+        readkey()
+        os.system(CLEAR_TERM)
 
     elif user_input == "3" and current_fidelity == "s":
         os.system(CLEAR_TERM)
@@ -170,15 +179,26 @@ while user_input != "EXITFLAG":
         if not raw_stats:
             print("You need to attempt this set prior to viewing its statistics!")
         else:
-            success_rate, weakest, revisions = raw_stats
+            success_rate, weakest, threshold, revisions = raw_stats
             print(f"Your success rate across {revisions} revisions is {success_rate}.")
 
             if success_rate == "100%":
                 print("You've never failed a card!")
             else:
-                print("Your weakest cards are:")
+                print(f"Your weakest cards, with a {int(threshold)}% success rate, are:")
                 for card in weakest:
                     fc = current_set.get_flashcard(card)
                     print(f"{fc.number}: {fc.question}")
 
-        any_cont()
+        readkey()
+        os.system(CLEAR_TERM)
+
+    elif user_input == "4":
+        os.system(CLEAR_TERM)
+
+        print("Set Preview:")
+        for fc in current_set._flashcards:
+            print(f"Flashcard {fc.number}: {fc.question}")
+
+        readkey()
+        os.system(CLEAR_TERM)

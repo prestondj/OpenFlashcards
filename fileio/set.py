@@ -82,12 +82,13 @@ class Set():
         return 0
 
     @property
-    def consolidated_statistics(self) -> tuple[str, list[int], int] | None:
+    def consolidated_statistics(self) -> tuple[str, list[int], int, int] | None:
         """
         Returns a tuple of arity 3.
         1 - overall success rate (str)
         2 - weakest flashcard (list int)
-        3 - total revisions (int)
+        3 - weakest threshold (int)
+        4 - total revisions (int)
         None = no flashcards in set
         """
 
@@ -116,7 +117,7 @@ class Set():
         revisions /= cards
         revisions = int(revisions)
 
-        return (success_rate, weakest, revisions)
+        return (success_rate, weakest, threshold, revisions)
 
 
     # kind of a property
